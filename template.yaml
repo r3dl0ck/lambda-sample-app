@@ -4,10 +4,11 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: Przykladowa aplikacja Lambda wdrazana przez CodePipeline
 
-Parameters:
-  AppVersion:
-    Type: String
-    Default: "1.0.0"
+# Lambda może wykorzystywać zmienną środowiskową.
+# Parameters:
+#   AppVersion:
+#     Type: String
+#     Default: "1.0.0"
 
 Resources:
   FunctionRole:
@@ -31,9 +32,10 @@ Resources:
       Handler: app.handler
       Role: !GetAtt FunctionRole.Arn
       Code: src/
-      Environment:
-        Variables:
-          APP_VERSION: !Ref AppVersion
+      # Environment:
+      #   Variables:
+      #     APP_VERSION: !Ref AppVersion
+      # Lambda może wykorzystywać zmienną środowiskową.
 
   # HTTP API (API Gateway v2) z integracja proxy do Lambdy (payload format 2.0,
   # zgodny z event["rawPath"] uzywanym w src/app.py).
