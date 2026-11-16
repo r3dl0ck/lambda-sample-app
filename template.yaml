@@ -1,0 +1,54 @@
+# Szablon aplikacji wdrazanej przez pipeline (etap Deploy).
+# `aws cloudformation package` (buildspec.yml) zamienia lokalne Code: src/
+# na obiekt S3 i zapisuje wynik jako packaged-template.yaml.
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Przykladowa aplikacja Lambda wdrazana przez CodePipeline
+
+Parameters:
+  AppVersion:
+    Type: String
+    Default: "1.0.0"
+
+Resources:
+  FunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+
+  AppFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: workshop-app-function
+      Runtime: python3.12
+      Handler: app.handler
+      Role: !GetAtt FunctionRole.Arn
+      Code: src/
+      Environment:
+        Variables:
+          APP_VERSION: !Ref AppVersion
+
+  AppFunctionUrl:
+    Type: AWS::Lambda::Url
+    Properties:
+      TargetFunctionArn: !Ref AppFunction
+      AuthType: NONE
+
+  AppFunctionUrlPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref AppFunction
+      Action: lambda:InvokeFunctionUrl
+      Principal: "*"
+      FunctionUrlAuthType: NONE
+
+Outputs:
+  FunctionUrl:
+    Value: !GetAtt AppFunctionUrl.FunctionUrl
