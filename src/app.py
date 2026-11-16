@@ -3,7 +3,7 @@
 import json
 import os
 
-VERSION = os.environ.get("APP_VERSION", "1.0.0")
+VERSION = os.environ.get("APP_VERSION", "1.0.1")
 
 
 def handler(event, context):
